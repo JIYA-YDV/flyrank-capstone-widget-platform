@@ -2,11 +2,14 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import Column, String, DateTime, ForeignKey, Text
-from sqlalchemy.dialects.postgresql import UUID, JSONB
-
+from sqlalchemy import Column, String, DateTime, ForeignKey, Text, JSON, UUID
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
+
 from app.db.session import Base
+
+# Cross-database JSON support (JSONB on Postgres, standard JSON on SQLite)
+JSONType = JSON().with_variant(JSONB(), "postgresql")
 
 
 class Submission(Base):
@@ -15,7 +18,7 @@ class Submission(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     widget_id = Column(UUID(as_uuid=True), ForeignKey("widgets.id", ondelete="CASCADE"), nullable=False, index=True)
     tenant_id = Column(UUID(as_uuid=True), nullable=False, index=True)  # denormalized for fast queries
-    data = Column(JSONB, nullable=False)
+    data = Column(JSONType, nullable=False)
     ip_address = Column(String(45), nullable=True)
     country = Column(String(100), nullable=True)
     city = Column(String(100), nullable=True)
