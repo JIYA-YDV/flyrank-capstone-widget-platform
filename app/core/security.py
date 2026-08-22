@@ -1,4 +1,5 @@
 # app/core/security.py
+import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from uuid import UUID
@@ -49,9 +50,14 @@ def get_current_user(
     db: Session = Depends(get_db),
 ) -> User:
     payload = decode_access_token(credentials.credentials)
-    user_id = payload.get("sub")
-    if user_id is None:
+    user_id_str = payload.get("sub")
+    if user_id_str is None:
         raise HTTPException(status_code=401, detail="Invalid token payload")
+
+    try:
+        user_id = uuid.UUID(user_id_str)
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Invalid user ID format")
 
     user = db.query(User).filter(User.id == user_id).first()
     if user is None:
