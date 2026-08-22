@@ -1,6 +1,7 @@
 # app/api/widgets.py
 from uuid import UUID
 from typing import List
+from fastapi.responses import JSONResponse
 
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
@@ -94,13 +95,23 @@ def get_snippet(
 
 
 @router.get("/{widget_id}/config", response_model=WidgetConfigResponse)
+@router.get("/{widget_id}/config", response_model=WidgetConfigResponse)
 def get_widget_config(
     widget_id: UUID,
     db: Session = Depends(get_db),
 ):
-    """Public endpoint — no auth required. Serves widget config with cache headers."""
+    """Public endpoint — no auth required. Serves widget config with short-lived cache headers."""
     service = WidgetService(db)
     widget = service.get_widget_public(widget_id)
     if not widget:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Widget not found")
-    return widget
+
+    config = WidgetConfigResponse.model_validate(widget)
+    response = JSONResponse(
+        content=config.model_dump(mode="json"),
+        headers={
+            "Cache-Control": "public, max-age=60, stale-while-revalidate=30",
+            "X-Widget-Version": str(widget.version),
+        },
+    )
+    return response
