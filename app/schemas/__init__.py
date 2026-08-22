@@ -8,3 +8,9 @@ from app.schemas.submission import (
     SubmissionCreate, SubmissionResponse,
     SubmissionListResponse, DashboardStats,
 )
+
+__all__ = [
+    "UserRegister", "UserLogin", "UserResponse", "TokenResponse",
+    "WidgetCreate", "WidgetUpdate", "WidgetResponse", "WidgetConfigResponse", "SnippetResponse",
+    "SubmissionCreate", "SubmissionResponse", "SubmissionListResponse", "DashboardStats"
+]
