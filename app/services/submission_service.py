@@ -4,6 +4,9 @@ from uuid import UUID
 from datetime import datetime, timedelta, timezone
 from typing import Optional, List, Dict, Any
 
+import asyncio
+from app.services.event_broadcaster import event_broadcaster
+
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
@@ -59,10 +62,44 @@ class SubmissionService:
         self.db.commit()
         self.db.refresh(submission)
 
-        # Safe side effect: send notification email
+        # Safe side effect #1: email notification
         self._send_notification_safe(widget, data)
 
+        # Safe side effect #2: real-time dashboard event (STRETCH)
+        self._broadcast_event_safe(widget, submission, geo)
+
         return submission
+        
+    def _broadcast_event_safe(self, widget: Widget, submission: Submission, geo: GeoResult) -> None:
+        """Push a live event to the dashboard. Failure here must NEVER
+        affect the submission response — same safe side-effect discipline
+        as the email notification."""
+        try:
+            payload = {
+                "id": str(submission.id),
+                "widget_id": str(widget.id),
+                "widget_name": widget.name,
+                "data": submission.data,
+                "country": geo.country,
+                "city": geo.city,
+                "created_at": submission.created_at.isoformat(),
+            }
+            # Schedule the async publish without blocking this sync method.
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    asyncio.ensure_future(
+                        event_broadcaster.publish(widget.owner_id, "new_submission", payload)
+                    )
+                else:
+                    loop.run_until_complete(
+                        event_broadcaster.publish(widget.owner_id, "new_submission", payload)
+                    )
+            except RuntimeError:
+                # No event loop available (e.g. sync test context) — skip safely
+                logger.warning("No running event loop; skipping SSE broadcast")
+        except Exception as e:
+            logger.error(f"SSE broadcast side-effect error: {e}")
 
     def _send_notification_safe(self, widget: Widget, data: Dict[str, Any]) -> None:
         """Fire-and-forget notification. Failure is logged, never raised."""
