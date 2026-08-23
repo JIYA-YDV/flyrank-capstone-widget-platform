@@ -13,6 +13,7 @@ from app.core.config import settings
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+logging.getLogger("passlib.handlers.bcrypt").setLevel(logging.ERROR)
 
 app = FastAPI(
     title="Embeddable Widget & Lead-Capture Platform",
