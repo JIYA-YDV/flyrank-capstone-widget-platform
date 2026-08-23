@@ -96,3 +96,7 @@ async def validation_exception_handler(request: Request, exc):
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+    
+@app.get("/dashboard")
+async def serve_dashboard():
+    return FileResponse("static/dashboard.html", media_type="text/html")
