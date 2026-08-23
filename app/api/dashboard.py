@@ -17,6 +17,10 @@ from app.models.user import User
 from app.schemas.submission import SubmissionListResponse, SubmissionResponse, DashboardStats
 from app.services.submission_service import SubmissionService
 
+from fastapi import Query
+from app.core.security import decode_access_token
+from app.models.user import User as UserModel
+
 router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
 
 
@@ -63,43 +67,45 @@ def get_stats(
 @router.get("/stream")
 async def dashboard_event_stream(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    token: str = Query(None),
+    db: Session = Depends(get_db),
 ):
     """
-    Server-Sent Events stream. The dashboard UI opens this connection once
-    and receives a push the instant a new submission arrives for this
-    tenant — no polling required.
-
-    STRETCH GOAL: Real-time dashboard.
+    SSE stream. EventSource cannot send Authorization headers, so this
+    endpoint accepts the JWT as a query parameter — a documented, narrow
+    exception for this one streaming endpoint only.
     """
-    queue = await event_broadcaster.subscribe(current_user.id)
+    if not token:
+        raise HTTPException(status_code=401, detail="Missing token")
+
+    payload = decode_access_token(token)
+    user_id_str = payload.get("sub")
+    if not user_id_str:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    import uuid as uuid_module
+    user = db.query(UserModel).filter(UserModel.id == uuid_module.UUID(user_id_str)).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+
+    queue = await event_broadcaster.subscribe(user.id)
 
     async def event_generator():
         try:
-            # Initial "connected" event so the client knows the stream is live
             yield f"event: connected\ndata: {json.dumps({'status': 'connected'})}\n\n"
-
             while True:
                 if await request.is_disconnected():
                     break
                 try:
-                    # Wait up to 15s for an event, otherwise send a heartbeat
                     payload = await asyncio.wait_for(queue.get(), timeout=15.0)
-                    event_name = payload["event"]
-                    data = json.dumps(payload["data"])
-                    yield f"event: {event_name}\ndata: {data}\n\n"
+                    yield f"event: {payload['event']}\ndata: {json.dumps(payload['data'])}\n\n"
                 except asyncio.TimeoutError:
-                    # Heartbeat keeps the connection alive through proxies
-                    yield f"event: heartbeat\ndata: {json.dumps({'ts': None})}\n\n"
+                    yield f"event: heartbeat\ndata: {{}}\n\n"
         finally:
-            await event_broadcaster.unsubscribe(current_user.id, queue)
+            await event_broadcaster.unsubscribe(user.id, queue)
 
     return StreamingResponse(
         event_generator(),
         media_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
-            "X-Accel-Buffering": "no",  # disable buffering on nginx-style proxies
-        },
+        headers={"Cache-Control": "no-cache", "Connection": "keep-alive", "X-Accel-Buffering": "no"},
     )

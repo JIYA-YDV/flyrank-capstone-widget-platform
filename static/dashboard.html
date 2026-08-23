@@ -1,0 +1,119 @@
+<!-- static/dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Live Dashboard — Real-Time Submissions</title>
+    <style>
+        body {
+            font-family: -apple-system, sans-serif;
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background: #f7f7f8;
+        }
+        h1 { color: #1a1a1a; }
+        #status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .connected { background: #dcfce7; color: #16a34a; }
+        .disconnected { background: #fee2e2; color: #dc2626; }
+        #login-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        input { padding: 8px; width: 200px; margin-right: 8px; }
+        button { padding: 8px 16px; background: #4F46E5; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        #feed {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+        }
+        .event-card {
+            border-left: 3px solid #4F46E5;
+            padding: 10px 14px;
+            margin-bottom: 10px;
+            background: #f9fafb;
+            border-radius: 4px;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .event-meta { font-size: 12px; color: #666; margin-top: 4px; }
+    </style>
+</head>
+<body>
+    <h1>📡 Live Submission Feed <span id="status" class="disconnected">disconnected</span></h1>
+
+    <div id="login-box">
+        <input id="email" placeholder="demo@example.com" value="demo@example.com">
+        <input id="password" type="password" placeholder="demo1234" value="demo1234">
+        <button onclick="connect()">Connect</button>
+    </div>
+
+    <div id="feed">
+        <p style="color:#999">Waiting for connection...</p>
+    </div>
+
+    <script>
+        let eventSource = null;
+
+        async function connect() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const loginRes = await fetch('http://localhost:8000/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const { access_token } = await loginRes.json();
+
+            if (eventSource) eventSource.close();
+
+            // EventSource doesn't support custom headers natively, so we pass
+            // the token as a query param for this demo (documented limitation).
+            eventSource = new EventSource(
+                `http://localhost:8000/api/dashboard/stream?token=${access_token}`
+            );
+
+            const statusEl = document.getElementById('status');
+            const feedEl = document.getElementById('feed');
+            feedEl.innerHTML = '';
+
+            eventSource.addEventListener('connected', () => {
+                statusEl.textContent = 'connected';
+                statusEl.className = 'connected';
+            });
+
+            eventSource.addEventListener('new_submission', (e) => {
+                const sub = JSON.parse(e.data);
+                const card = document.createElement('div');
+                card.className = 'event-card';
+                card.innerHTML = `
+                    <strong>New submission on "${sub.widget_name}"</strong>
+                    <div>${JSON.stringify(sub.data)}</div>
+                    <div class="event-meta">
+                        ${sub.city || 'Unknown'}, ${sub.country || 'Unknown'} ·
+                        ${new Date(sub.created_at).toLocaleTimeString()}
+                    </div>
+                `;
+                feedEl.prepend(card);
+            });
+
+            eventSource.onerror = () => {
+                statusEl.textContent = 'disconnected';
+                statusEl.className = 'disconnected';
+            };
+        }
+    </script>
+</body>
+</html>
