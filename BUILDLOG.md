@@ -97,3 +97,9 @@ per program rule: "AI-assisted building is encouraged — and owned."
   Building against PostgreSQL-only types and only discovering the SQLite
   incompatibility at test time cost real debugging time that could have been
   avoided by using `.with_variant()` from the start.
+
+  ## Phase 5 — Real-Time Dashboard Stretch Goal
+
+- **Server-Sent Events (SSE) Stream:** Implemented a real-time submission feed using `StreamingResponse` so clients receive live updates instantly.
+- **Authentication Workaround:** Documented the browser `EventSource` limitation regarding custom `Authorization` headers, implementing a narrow, explicit exception where the JWT is accepted as a query parameter for `/api/dashboard/stream`.
+- **Automated Testing:** Wrote a comprehensive `pytest` suite (`tests/test_sse_stretch.py`) covering subscriber receipt, unsubscribed client isolation, empty subscriber handling, and token enforcement on the stream endpoint.
