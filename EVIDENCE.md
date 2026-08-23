@@ -362,7 +362,7 @@ Optional bonus (real API, manual only): submit a real form on the test site and 
 (venv) PS D:\flyrankai\capstone\flyrank-capstone-widget-platform> curl.exe http://127.0.0.1:8000/api/dashboard/stats -H "Authorization: Bearer $TOKEN"
 {"total_submissions":38,"submissions_today":4,"submissions_this_week":11,"submissions_this_month":28,"by_widget":[{"widget_id":"1d751f41-4296-497a-9a24-2d80c0990a45","widget_name":"Newsletter Signup","count":10},{"widget_id":"c18b6dfd-e46b-46e5-a33e-3ae2a3993de8","widget_name":"Contact Form","count":28}],"by_country":[{"country":"Australia","count":8},{"country":"France","count":6},{"country":"Canada","count":5},{"country":"United Kingdom","count":4},{"country":"Japan","count":3},{"country":"Germany","count":3},{"country":"United States","count":3},{"country":"Brazil","count":3}],"recent":[{"id":"83fd69ab-8986-4824-8f45-8fda35b5c05b","widget_id":"c18b6dfd-e46b-46e5-a33e-3ae2a3993de8","data":{"name":"Evidence Test","email":"evidence@test.com","message":"Proof of storage"},"country":null,"city":null,"region":null,"geo_provider":null,"created_at":"2026-08-23T05:34:07.629329Z"},{"id":"e6ad1f63-4159-4501-812e-f39400c73d63","widget_id":"c18b6dfd-e46b-46e5-a33e-3ae2a3993de8","data":{"name":"Jiya Yadav","email":"yjiya1012@gmail.com","message":"i am good\n"},"country":null,"city":null,"region":null,"geo_provider":null,"created_at":"2026-08-23T05:26:58.905401Z"},{"id":"f59e773f-1060-4591-8c5a-fb7ff4c5ea2d","widget_id":"c18b6dfd-e46b-46e5-a33e-3ae2a3993de8","data":{"name":"Jiya Yadav","email":"yjiya1012@gmail.com","message":"i am ok\n"},"country":null,"city":null,"region":null,"geo_provider":null,"created_at":"2026-08-23T05:26:49.880404Z"},{"id":"7eb3c31f-2815-4d73-b1ce-2928d66e3852","widget_id":"1d751f41-4296-497a-9a24-2d80c0990a45","data":{"email":"subscriber6@example.com","first_name":"Subscriber 6"},"country":"Australia","city":"Sydney","region":null,"geo_provider":"seed-data","created_at":"2026-08-23T01:58:13.631293Z"},{"id":"9c19a38b-59c7-4a5a-9a07-01f846873547","widget_id":"1d751f41-4296-497a-9a24-2d80c0990a45","data":{"email":"subscriber1@example.com","first_name":"Subscriber 1"},"country":"Canada","city":"Toronto","region":null,"geo_provider":"seed-data","created_at":"2026-08-22T15:58:13.631293Z"},{"id":"f0f8dd01-4871-488f-b8c2-88f9fa538581","widget_id":"c18b6dfd-e46b-46e5-a33e-3ae2a3993de8","data":{"name":"Test User 23","email":"user23@example.com","message":"This is test message number 23."},"country":"Australia","city":"Sydney","region":"Test Region","geo_provider":"seed-data","created_at":"2026-08-22T14:58:13.631293Z"},{"id":"d2eb8c19-7909-4f71-ab3b-beb999f71d8c","widget_id":"1d751f41-4296-497a-9a24-2d80c0990a45","data":{"email":"subscriber8@example.com","first_name":"Subscriber 8"},"country":"Brazil","city":"São Paulo","region":null,"geo_provider":"seed-data","created_at":"2026-08-22T12:58:13.631293Z"},{"id":"f5de70ce-7838-4d7a-91b7-5635f9178b8e","widget_id":"c18b6dfd-e46b-46e5-a33e-3ae2a3993de8","data":{"name":"Test User 7","email":"user7@example.com","message":"This is test message number 7."},"country":"United Kingdom","city":"London","region":"Test Region","geo_provider":"seed-data","created_at":"2026-08-20T19:58:13.631293Z"},{"id":"97de60ee-1195-4f42-a571-77187a41260d","widget_id":"1d751f41-4296-497a-9a24-2d80c0990a45","data":{"email":"subscriber7@example.com","first_name":"Subscriber 7"},"country":"Japan","city":"Tokyo","region":null,"geo_provider":"seed-data","created_at":"2026-08-18T21:58:13.631293Z"},{"id":"82526e11-8440-4439-a713-0682d671edf6","widget_id":"1d751f41-4296-497a-9a24-2d80c0990a45","data":{"email":"subscriber3@example.com","first_name":"Subscriber 3"},"country":"Brazil","city":"São Paulo","region":null,"geo_provider":"seed-data","created_at":"2026-08-18T12:58:13.631293Z"}]}
 
-![dashboard-stats-and-side-effects-test](docs/screenshots/dashboard-stats-and-side-effects-test.png)
+![18-dashboard-stats-and-side-effects-test](docs/screenshots/18-dashboard-stats-and-side-effects-test.png)
 
 ### ☑ Failing email/webhook does not prevent submission storage
 
@@ -380,7 +380,7 @@ tests/test_geo_fallback.py::test_provider_a_fails_provider_b_succeeds PASSED [ 6
 tests/test_geo_fallback.py::test_both_providers_down PASSED                 [100%]
 =============================== 3 passed in 0.23s ================================
 
-![18-geo-fallback-chain-pytest-passed](docs/screenshots/18-geo-fallback-chain-pytest-passed.png)
+![19-geo-fallback-chain-pytest-passed](docs/screenshots/19-geo-fallback-chain-pytest-passed.png)
 
 (venv) PS D:\flyrankai\capstone\flyrank-capstone-widget-platform> pytest tests/test_side_effects.py -v
 ============================== test session starts ===============================
@@ -394,7 +394,7 @@ collected 1 item
 tests/test_side_effects.py::test_email_failure_does_not_block_submission PASSED [100%]
 =============================== 1 passed in 0.63s ================================
 
-![19-side-effects-email-failure-pytest-passed](docs/screenshots/19-side-effects-email-failure-pytest-passed.png)
+![20-side-effects-email-failure-pytest-passed](docs/screenshots/20-side-effects-email-failure-pytest-passed.png)
 
 ## Tests & Documentation
 
@@ -444,7 +444,7 @@ tests/test_widgets.py::test_get_snippet PASSED                           [ 96%]
 tests/test_widgets.py::test_public_config_endpoint PASSED                [100%]
 ============================= 31 passed in 14.46s =============================
 
-![20-pytest-full-output-all-passed](docs/screenshots/20-pytest-full-output-all-passed.png)
+![21-pytest-full-output-all-passed](docs/screenshots/21-pytest-full-output-all-passed.png)
 
 ### ☑ README + submission-pack files present
 
@@ -482,4 +482,28 @@ d-----         8/22/2026  10:22 PM                venv
 -a----         8/22/2026   9:54 PM           7022 seed.py
 -a----         8/23/2026  11:27 AM          49152 test.db 
 
-![21-repo-files-directory-listing](docs/screenshots/21-repo-files-directory-listing.png)
+![22-repo-files-directory-listing](docs/screenshots/22-repo-files-directory-listing.png)
+
+## ⭐ Stretch Goal: Real-Time Dashboard (Server-Sent Events)
+
+### What was built
+- `EventBroadcaster` (in-process pub/sub, `asyncio.Queue` per subscriber)
+- `GET /api/dashboard/stream` — SSE endpoint, one stream per authenticated tenant
+- Submission creation broadcasts a `new_submission` event as a **safe side-effect**
+  (same failure-isolation pattern as the email notification — broadcasting
+  can never break the submission response)
+- `static/dashboard.html` — minimal live-updating view consuming the stream
+
+### Proof
+
+# Dashboard UI
+
+![23-live-submission-feed-dashboard](docs/screenshots/23-live-submission-feed-dashboard.png)
+
+# Test Results
+
+![24-pytest-sse-stretch-passed](docs/screenshots/24-pytest-sse-stretch-passed.png)
+
+### Documented limitation
+`EventSource` cannot send `Authorization` headers, so `/api/dashboard/stream`
+accepts the JWT as a query parameter — a narrow, explicit exception scoped to this one endpoint. All other endpoints require the header. In a production system this would instead use a short-lived, single-use stream token minted by a separate authenticated call.
